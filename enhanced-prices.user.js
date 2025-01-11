@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Enhanced Prices
 // @namespace    https://prices.runescape.wiki
-// @version      0.1.0
+// @version      0.2.0
 // @description  A suite of enhancements for the Runescape Wiki prices website.
 // @author       Blonks
 // @match        https://prices.runescape.wiki/osrs/*
@@ -31,7 +31,65 @@
             }
             `;
             document.head.appendChild(styleTag);
-            console.log("Style element generated");
+            console.debug("Style element generated");
+        }
+    }
+
+    function extendedGraph(target) {
+        // If the element that was mutated has the container class
+        if (target.classList.contains("wgl-page-container") && target.classList.contains("container")) {
+            // If it does not also have our new custom fluid class, add it
+            if (!target.classList.contains(styleId)) {
+                console.debug("The container div does not have the fluid class");
+                target.classList.add(styleId);
+                console.debug("Added fluid class to container");
+            }
+        }
+
+        ensureStyleTagExists();
+    }
+
+    function buttonFormat(href, text) {
+        // tre
+        const linkButton = document.createElement("a");
+        linkButton.classList.add("btn");
+        linkButton.classList.add("btn-secondary");
+        linkButton.href = href;
+        linkButton.innerHTML = text;
+        linkButton.id = text;
+
+        return linkButton;
+    }
+
+    function additionalSiteLinks(target) {
+        let siteUrls = {
+            "Cloud": "https://prices.osrs.cloud/item/",
+            "GE-Tracker": "https://www.ge-tracker.com/item/",
+        };
+
+        let siteSettings = {
+            "Cloud": true,
+            "GE-Tracker": true,
+        };
+
+        // add other buttons
+        if (target.classList.contains("wgl-page-container") && target.classList.contains("container")) {
+            let appendFrom = target.querySelector('a[href*="itemdb"]');
+
+            for (let [key, value] of Object.entries(siteSettings)) {
+                if (value) {
+                    if (!document.querySelector('#'+key)) {
+                        let itemId = window.location.toString().substring(window.location.toString().lastIndexOf("/")+1);
+                        let newButton = buttonFormat(siteUrls[key] + itemId, key);
+                        appendFrom.after(newButton);
+                        appendFrom = newButton;
+                        let whiteSpace = document.createTextNode("\u00A0");
+                        appendFrom.before(whiteSpace);
+                    }
+
+                }
+            }
+
         }
     }
 
@@ -44,18 +102,10 @@
         mutationsList.forEach(mutation => {
             const target = mutation.target;
 
-            // If the element that was mutated has the container class
-            if (target.classList.contains("wgl-page-container") && target.classList.contains("container")) {
-                console.log("The container div does not have the fluid class");
-                // If it does not also have our new custom fluid class, add it
-                if (!target.classList.contains(styleId)) {
-                    target.classList.add(styleId);
-                    console.log("Added fluid class to container");
-                }
-            }
-        });
+            extendedGraph(target);
 
-        ensureStyleTagExists();
+            additionalSiteLinks(target);
+        });
     }
 
     // Create the new mutation observer with the callback checkAndUpdateClass
