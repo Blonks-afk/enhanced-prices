@@ -108,6 +108,19 @@
         return linkButton;
     }
 
+    function buttonFormatNew(id, text, hrefCallback) {
+        // tre
+        const linkButton = document.createElement("a");
+        linkButton.classList.add("btn");
+        linkButton.classList.add("btn-secondary");
+        linkButton.innerHTML = text;
+        linkButton.id = id;
+
+        linkButton.onclick = () => hrefCallback(linkButton);
+
+        return linkButton;
+    }
+
     function additionalSiteLinks(target) {
         // add other buttons
         if (target.classList && target.classList.contains("wgl-page-container") && target.classList.contains("container")) {
@@ -117,8 +130,11 @@
                 if (settingGroup.displayName === 'Site Links') {
                     settingGroup.groupSettings.forEach(siteSettings => {
                         if (siteSettings.value && !document.querySelector('#'+siteSettings.elementId+'Btn')) {
-                            let itemId = window.location.toString().substring(window.location.toString().lastIndexOf("/")+1);
-                            let newButton = buttonFormat(siteSettings.url + itemId, siteSettings.elementId+'Btn', siteSettings.displayName);
+//                             let itemId = window.location.toString().substring(window.location.toString().lastIndexOf("/")+1);
+//                             let newButton = buttonFormat(siteSettings.url + itemId, siteSettings.elementId+'Btn', siteSettings.displayName);
+                            let newButton = buttonFormatNew(siteSettings.elementId+'Btn', siteSettings.displayName, ((button) => {
+                                button.href = siteSettings.url + window.location.toString().substring(window.location.toString().lastIndexOf("/")+1);
+                            }));
                             appendFrom.after(newButton);
                             appendFrom = newButton;
                             let whiteSpace = document.createTextNode("\u00A0");
